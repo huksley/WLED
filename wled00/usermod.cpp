@@ -180,7 +180,7 @@ int toggle = 0;
 //loop. You can use "if (WLED_CONNECTED)" to check for successful connection
 void userLoop()
 {
-  if (WLED_CONNECTED) {
+  if (WLED_CONNECTED && effectCurrent == FX_MODE_USERMOD) {
 
     temptimer = millis();
     if (temptimer - lastMeasure > 50) {
