@@ -49,6 +49,7 @@ class Snake {
     }
 
     boolean loop() {
+      FastLED_clear();
       EVERY_N_MILLISECONDS(10) {
         count10ms++;
       }
@@ -86,8 +87,6 @@ class Snake {
       }
 
       FastLED_show();
-      delay(10);
-
       return true;
     }
 
@@ -204,7 +203,9 @@ class Snake {
 
     void explodeFruit() {
       if (ex.r < 7) {
-        leds.DrawCircle(ex.x, ex.y, ex.r, CHSV(ex.hue, 255, 255 - (ex.r * 40)));
+        for (int r = 1; r <= ex.r; r++) {
+          leds.DrawCircle(ex.x, ex.y, r, CHSV(ex.hue, 255, 255 - (r * 40)));
+        }
         if (count10ms % 2 == 0) ex.r++;
       } else {
         explosion = false;
