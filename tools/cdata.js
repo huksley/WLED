@@ -292,7 +292,7 @@ writeChunks(
       append: ")=====",
       method: "plaintext",
       filter: "html-minify",
-      mangle: str => str.replace(/fetch\("http\:\/\/.*\/win/gms, "fetch(\"/win")
+      mangle: str => str.replace(/fetch\("http\:\/\/.*\/win/gms, 'fetch("/win')
     },
     {
       file: "msg.htm",
@@ -350,3 +350,102 @@ const char PAGE_dmxmap[] PROGMEM = R"=====()=====";
   ],
   "wled00/html_other.h"
 );
+
+const PNG = require("pngjs").PNG;
+
+const pack = (R, G, B) => G | (B << 8) | (R << 16);
+
+const unpack = num => ({
+  R: num >> 16,
+  B: (num >> 8) & 0x00ff,
+  G: num & 0x0000ff
+});
+
+function lighten(num, amt) {
+  var r = (num >> 16) + amt;
+  var b = ((num >> 8) & 0x00FF) + amt;
+  var g = (num & 0x0000FF) + amt;
+  return g | (b << 8) | (r << 16);
+}
+
+const specs = [
+  {
+    x: 0,
+    y: 0,
+    width: 9,
+    height: 10,
+    name: "PacmanOld"
+  },
+
+  {
+    x: 0,
+    y: 24,
+    width: 7,
+    height: 9,
+    name: "PacmanRight"
+  }
+]
+
+fs.createReadStream("wled00/data/roguelite.png")
+  .pipe(
+    new PNG({
+      filterType: 4
+    })
+  )
+  .on("parsed", function() {
+    console.info("Reading " + this.width, this.height);
+    let str = "";
+
+    specs.forEach(spec => {
+      const colors = [0];
+      const map = [];
+      const mask = [];
+      const width = spec.width;
+      const height = spec.height;
+      const colorCode = "0123456789ABCDEF";
+      const name = spec.name;
+      const sx = spec.x;
+      const sy = spec.y;
+      for (var y = sy; y < sy + height; y++) {
+        for (var x = sx; x < sx + width; x++) {
+          const idx = (this.width * y + x) << 2;
+          const R = this.data[idx];
+          const G = this.data[idx + 1];
+          const B = this.data[idx + 2];
+          const A = this.data[idx + 3];
+          const col = A == 0 ? 0 : lighten(pack(R, G, B), 20);
+          let index = colors.indexOf(col);
+          if (index < 0) {
+            index = colors.length;
+            colors.push(col);
+          }
+          map[width * y + x] = colorCode[index];
+          mask[width * y + x] = A == 255 ? 1 : 0;
+        }
+      }
+      console.info("Unique colors: " + colors.length);
+      str += `// Sprite data ${sx}, ${sy}, ${width}, ${height}, ${name}`
+      str += "\nconst uint8_t " + name + "Data[] = {";
+      str += map
+        .join("")
+        .match(new RegExp(".{1," + width + "}", "g"))
+        .map((s) => "\n" + s.match(/.{1,8}/g).map((eight, index, arr) => " B8_5BIT(" + eight + (index == arr.length - 1 ? "0".repeat(8 - eight.length) : "") + ")").join(","))
+        .join(", ");
+      str += "\n};\n";
+      str += "const uint8_t " + name + "Mask[] = {";
+      str += mask
+        .join("")
+        .match(new RegExp(".{1," + width + "}", "g"))
+        .map((s) => "\n" + s.match(/.{1,8}/g).map((eight, index, arr) => " B8_1BIT(" + eight + (index == arr.length - 1 ? "0".repeat(8 - eight.length) : "") + ")").join(","))
+        .join(", ");
+      str += "\n};\n";
+      str +=
+        "const struct CRGB " + name + "ColTab[] =  {" +
+        colors.map(c => "\n CRGB(0x" + unpack(c).R.toString(16) + ", 0x" + unpack(c).G.toString(16) + ", 0x" + unpack(c).B.toString(16) +") /*" + c.toString(16) + "*/").join(", ") +
+        "\n};\n";
+
+      str += "cSprite " + name + "(" + width + ", " + height + ", " + name + "Data, 1, _5BIT, " + name + "ColTab, " + name + "Mask);\n"
+    })
+
+    fs.writeFileSync("wled00/Sprites.h", str)
+  });
