@@ -5,7 +5,7 @@ const char PAGE_usermod[] PROGMEM = R"=====(<!DOCTYPE html><html><head><meta cha
 body{text-align:center;background:#222;height:100;margin:0}html{--h:11.55vh}button{background:#333;color:#fff;font-family:Verdana,Helvetica,sans-serif;border:.3ch solid #333;display:inline-block;font-size:8vmin;height:var(--h);width:95%;margin-top:2.4vh}textarea{background:#222;color:#fff;padding-top:10px;width:100%;font-family:monaco,monospace;font-size:12px;-webkit-border-radius:10px;-moz-border-radius:10px}
 </style><script>var index = 0;
     function rq(cm, val) {
-      fetch("http://192.168.1.65/win&" + val).then(response => {
+      fetch("/win&" + val).then(response => {
         if (response.status == 200) {
             index++;
             document.cf.rsp.value = response.responseText
