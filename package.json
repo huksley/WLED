@@ -26,6 +26,7 @@
     "html-minifier": "^4.0.0",
     "inliner": "^1.13.1",
     "nodemon": "^2.0.4",
+    "pngjs": "^5.0.0",
     "zlib": "^1.0.5"
   }
 }

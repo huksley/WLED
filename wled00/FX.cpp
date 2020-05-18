@@ -3334,3 +3334,7 @@ uint16_t WS2812FX::mode_solid_glitter()
   }
   return FRAMETIME;
 }
+
+uint16_t WS2812FX::mode_usermod(void) {
+  return FRAMETIME;
+}

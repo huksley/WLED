@@ -1,6 +1,106 @@
 <!DOCTYPE html>
 <html>
-
-<body>No usermod custom web page set.</body>
-
+  <head>
+      <meta charset="utf-8">
+  <title>Usermod client</title>
+  <style>
+    body {
+			text-align: center;
+			background: #222;
+			height: 100;
+			margin: 0;
+		}
+		html {
+			--h: 11.55vh;
+		}
+		button {
+			background: #333;
+			color: #fff;
+			font-family: Verdana, Helvetica, sans-serif;
+			border: 0.3ch solid #333;
+			display: inline-block;
+			font-size: 8vmin;
+			height: var(--h);
+			width: 95%;
+			margin-top: 2.4vh;
+		}
+    textarea {
+      background: #222;
+      color:  #fff;
+      padding-top: 10px;
+      width: 100%;
+      font-family: monaco, monospace;
+      font-size: 12px;
+      -webkit-border-radius: 10px;
+      -moz-border-radius: 10px;
+    }
+  </style>
+<script>
+    var index = 0;
+    function rq(cm, val) {
+      fetch("http://192.168.1.65/win&" + val).then(response => {
+        if (response.status == 200) {
+            index++;
+            document.cf.rsp.value = response.responseText
+          }
+          else {
+            document.cf.rsp.value = "Error " + response.status + "\r\n\n" + response.responseText;
+          }
+      })
+    }
+  
+    document.onkeydown = checkKey;
+  
+    function checkKey(e) {
+  
+      e = e || window.event;
+  
+      if (e.keyCode == '38') {
+        // up arrow
+        rq('GET', 'U0=' + index + '&U1=1');
+      }
+      else if (e.keyCode == '40') {
+        // down arrow
+        rq('GET', 'U0=' + index + '&U1=4')
+      }
+      else if (e.keyCode == '37') {
+        // left arrow
+        rq('GET', 'U0=' + index + '&U1=2')
+      }
+      else if (e.keyCode == '39') {
+        // right arrow
+        rq('GET', 'U0=' + index + '&U1=3')
+      }
+  
+    }
+  </script>
+</head>
+<body>
+    <form action="/"><button type=submit id="b">Back</button></form>
+  <form name="cf">
+    <div id="buttons">
+      <button type="button" onclick="rq('GET', 'U0=' + index + '&U1=5')">MODE</button>
+      <button type="button" onclick="rq('GET', 'U0=' + index + '&U1=0')">RESET</button>
+      <table width="100%">
+          <tr>
+            <td width="33%"></td>
+            <td width="33%"><button type="button" class="JOY" onclick="rq('GET', 'U0=' + index + '&U1=1')">UP</button></td>
+            <td width="33%"></td>
+          </tr>
+          <tr>
+            <td><button type="button" class="JOY" onclick="rq('GET', 'U0=' + index + '&U1=2')">LEFT</button></td>
+            <td></td>
+            <td><button type="button" class="JOY" onclick="rq('GET', 'U0=' + index + '&U1=3')">RIGHT</button></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><button type="button" class="JOY" onclick="rq('GET', 'U0=' + index + '&U1=4')">DOWN</button></td>
+            <td></td>
+          </tr>
+        </table>
+    </div>
+    <h2>Response:</h2>
+    <textarea name="rsp" rows="25" cols="100"></textarea>
+  </form>
+</body>
 </html>
