@@ -374,7 +374,7 @@ const specs = [
     y: 0,
     width: 9,
     height: 10,
-    name: "PacmanOld"
+    name: "Char"
   },
 
   {
@@ -382,7 +382,7 @@ const specs = [
     y: 24,
     width: 7,
     height: 9,
-    name: "PacmanRight"
+    name: "Ring"
   }
 ]
 

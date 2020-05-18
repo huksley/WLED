@@ -58,9 +58,26 @@ void FastLED_show() {
 cLEDSprites Sprites(&leds);
 
 #include "Sprites.h"
+#include "Sprites2.h"
 
 long temptimer = millis();
 long lastMeasure = 0;
+
+void SetupSprites() {
+  Sprites.RemoveAllSprites();
+  Ring.SetPositionFrameMotionOptions(4/*X*/, 4/*Y*/, 0/*Frame*/, 0/*FrameRate*/, 0/*XChange*/, 0/*XRate*/, 0/*YChange*/, 0/*YRate*/, SPRITE_DETECT_EDGE | SPRITE_X_KEEPIN | SPRITE_Y_KEEPIN);
+  Sprites.AddSprite(&Ring);
+}
+
+void SetupSprites2() {
+  Sprites.RemoveAllSprites();
+  SprPill.SetPositionFrameMotionOptions(MATRIX_WIDTH - POWER_PILL_SIZE - 1/*X*/, (MY_SPRITE_HEIGHT - POWER_PILL_SIZE) / 2/*Y*/, 0/*Frame*/, 0/*FrameRate*/, 0/*XChange*/, 0/*XRate*/, 0/*YChange*/, 0/*YRate*/);
+  Sprites.AddSprite(&SprPill);
+  SprPacmanRight.SetPositionFrameMotionOptions(-12/*X*/, 0/*Y*/, 0/*Frame*/, 4/*FrameRate*/, +1/*XChange*/, 2/*XRate*/, 0/*YChange*/, 0/*YRate*/, SPRITE_DETECT_EDGE | SPRITE_DETECT_COLLISION);
+  Sprites.AddSprite(&SprPacmanRight);
+  SprPinky.SetPositionFrameMotionOptions(-26/*X*/, 0/*Y*/, 0/*Frame*/, 2/*FrameRate*/, +1/*XChange*/, 2/*XRate*/, 0/*YChange*/, 0/*YRate*/, SPRITE_DETECT_EDGE);
+  Sprites.AddSprite(&SprPinky);
+}
 
 //gets called once at boot. Do all initialization that doesn't depend on network here
 void userSetup()
@@ -70,12 +87,6 @@ void userSetup()
   effectCurrent = FX_MODE_USERMOD;
   strip.setBrightness(20);
   colorUpdated(NOTIFIER_CALL_MODE_DIRECT_CHANGE);
-
-  PacmanRight.SetPositionFrameMotionOptions(4/*X*/, 4/*Y*/, 0/*Frame*/, 0/*FrameRate*/, 0/*XChange*/, 0/*XRate*/, 0/*YChange*/, 0/*YRate*/, 
-    SPRITE_DETECT_EDGE | SPRITE_X_KEEPIN | SPRITE_Y_KEEPIN);
-
-  Sprites.AddSprite(&PacmanRight);
-
 }
 
 Snake* snake = NULL;
@@ -94,9 +105,71 @@ void userConnected()
 bool isRunning = true;
 
 int inputIndex = 0;
-int toggle = 2;
-// 0 - plasma, 1 - snake, 2 - pacman
-#define TOGGLE_MAX 2
+int toggle = 0;
+// 0 - plasma, 1 - snake, 2 - pacman, 3 - show sprite
+#define TOGGLE_MAX 3
+
+void SpriteLoop() {
+  FastLED_clear();
+  Sprites.UpdateSprites();
+  Sprites.RenderSprites();
+  FastLED_show();
+}
+
+void SpriteLoop2() {
+  FastLED_clear();
+  Sprites.UpdateSprites();
+  Sprites.DetectCollisions();
+  if (Sprites.IsSprite(&SprPinky))
+  {
+    if (SprPill.GetFlags() & SPRITE_COLLISION)
+    {
+      Sprites.RemoveSprite(&SprPinky);
+      Sprites.RemoveSprite(&SprPacmanRight);
+      Sprites.RemoveSprite(&SprPill);
+      SprGhost.SetPositionFrameMotionOptions(SprPinky.m_X, SprPinky.m_Y, 0, 3, -1, 3, 0, 0, SPRITE_DETECT_EDGE | SPRITE_DETECT_COLLISION);
+      Sprites.AddSprite(&SprGhost);
+      SprPacmanLeft.SetPositionFrameMotionOptions(SprPacmanRight.m_X, SprPacmanRight.m_Y, 0, 4, -1, 2, 0, 0, SPRITE_DETECT_EDGE);
+      Sprites.AddSprite(&SprPacmanLeft);
+    }
+  }
+  else if (Sprites.IsSprite(&SprGhost))
+  {
+    if (SprGhost.GetFlags() & SPRITE_COLLISION)
+    {
+      Sprites.RemoveSprite(&SprGhost);
+      Spr200.SetPositionFrameMotionOptions(SprGhost.m_X, SprGhost.m_Y, 0, 0, 0, 0, 0, 0);
+      Sprites.AddSprite(&Spr200);
+      Sprites.ChangePriority(&Spr200, SPR_BACK);
+    }
+  }
+  else if (Sprites.IsSprite(&Spr200))
+  {
+    if (SprPacmanLeft.GetFlags() & SPRITE_EDGE_X_MIN)
+    {
+      Sprites.RemoveSprite(&Spr200);
+      SprEyes.SetPositionFrameMotionOptions(Spr200.m_X, Spr200.m_Y, 0, 0, +1, 2, 0, 0, SPRITE_DETECT_EDGE);
+      Sprites.AddSprite(&SprEyes);
+      Sprites.ChangePriority(&SprEyes, SPR_BACK);
+    }
+  }
+  else
+  {
+    if (SprEyes.GetFlags() & SPRITE_MATRIX_X_OFF)
+    {
+      Sprites.RemoveSprite(&SprEyes);
+      Sprites.RemoveSprite(&SprPacmanLeft);
+      SprPill.SetPositionFrameMotionOptions(MATRIX_WIDTH - POWER_PILL_SIZE - 1/*X*/, (MY_SPRITE_HEIGHT - POWER_PILL_SIZE) / 2/*Y*/, 0/*Frame*/, 0/*FrameRate*/, 0/*XChange*/, 0/*XRate*/, 0/*YChange*/, 0/*YRate*/);
+      Sprites.AddSprite(&SprPill);
+      SprPacmanRight.SetPositionFrameMotionOptions(-12/*X*/, 0/*Y*/, 0/*Frame*/, 4/*FrameRate*/, +1/*XChange*/, 2/*XRate*/, 0/*YChange*/, 0/*YRate*/, SPRITE_DETECT_EDGE | SPRITE_DETECT_COLLISION);
+      Sprites.AddSprite(&SprPacmanRight);
+      SprPinky.SetPositionFrameMotionOptions(-26/*X*/, 0/*Y*/, 0/*Frame*/, 2/*FrameRate*/, +1/*XChange*/, 2/*XRate*/, 0/*YChange*/, 0/*YRate*/, SPRITE_DETECT_EDGE);
+      Sprites.AddSprite(&SprPinky);
+    }
+  }
+  Sprites.RenderSprites();
+  FastLED_show();
+}
 
 //loop. You can use "if (WLED_CONNECTED)" to check for successful connection
 void userLoop()
@@ -125,10 +198,11 @@ void userLoop()
       }
 
       if (toggle == 2) {
-        Sprites.UpdateSprites();
-        FastLED_clear();
-        Sprites.RenderSprites();
-        FastLED_show();
+        SpriteLoop2();
+      }
+
+      if (toggle == 3) {
+        SpriteLoop();
       }
 
       if (userVar0 != inputIndex) {
@@ -152,10 +226,18 @@ void userLoop()
           case 5:
             currentInput = TOGGLE;
             toggle ++;
-            DEBUG_PRINTLN("new toggle");
             FastLED_clear();
             if (toggle > TOGGLE_MAX) {
               toggle = 0;
+            }
+            char modeStr[32];
+            sprintf(modeStr, "Mode %i", toggle);
+            DEBUG_PRINTLN(modeStr);
+            if (toggle == 2) {
+              SetupSprites2();
+            }
+            if (toggle == 3) {
+              SetupSprites();
             }
         }
 

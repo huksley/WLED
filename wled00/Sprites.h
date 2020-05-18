@@ -1,5 +1,5 @@
-// Sprite data 0, 0, 9, 10, PacmanOld
-const uint8_t PacmanOldData[] = {
+// Sprite data 0, 0, 9, 10, Char
+const uint8_t CharData[] = {
  B8_5BIT(00000000), B8_5BIT(00000000), 
  B8_5BIT(00000000), B8_5BIT(00000000), 
  B8_5BIT(00001111), B8_5BIT(00000000), 
@@ -11,7 +11,7 @@ const uint8_t PacmanOldData[] = {
  B8_5BIT(0118A1A0), B8_5BIT(00000000), 
  B8_5BIT(00A51A5A), B8_5BIT(00000000)
 };
-const uint8_t PacmanOldMask[] = {
+const uint8_t CharMask[] = {
  B8_1BIT(00000000), B8_1BIT(00000000), 
  B8_1BIT(00000000), B8_1BIT(00000000), 
  B8_1BIT(00001111), B8_1BIT(00000000), 
@@ -23,7 +23,7 @@ const uint8_t PacmanOldMask[] = {
  B8_1BIT(01111110), B8_1BIT(00000000), 
  B8_1BIT(00111111), B8_1BIT(00000000)
 };
-const struct CRGB PacmanOldColTab[] =  {
+const struct CRGB CharColTab[] =  {
  CRGB(0x0, 0x0, 0x0) /*0*/, 
  CRGB(0x53, 0x40, 0x33) /*533340*/, 
  CRGB(0xe2, 0xbb, 0x69) /*e269bb*/, 
@@ -36,9 +36,9 @@ const struct CRGB PacmanOldColTab[] =  {
  CRGB(0xf6, 0xdf, 0x97) /*f697df*/, 
  CRGB(0x3f, 0x67, 0x45) /*3f4567*/
 };
-cSprite PacmanOld(9, 10, PacmanOldData, 1, _5BIT, PacmanOldColTab, PacmanOldMask);
-// Sprite data 0, 24, 7, 9, PacmanRight
-const uint8_t PacmanRightData[] = {
+cSprite Char(9, 10, CharData, 1, _5BIT, CharColTab, CharMask);
+// Sprite data 0, 24, 7, 9, Ring
+const uint8_t RingData[] = {
  B8_5BIT(00000000), 
  B8_5BIT(00121000), 
  B8_5BIT(02313200), 
@@ -49,7 +49,7 @@ const uint8_t PacmanRightData[] = {
  B8_5BIT(00666000), 
  B8_5BIT(00000000)
 };
-const uint8_t PacmanRightMask[] = {
+const uint8_t RingMask[] = {
  B8_1BIT(00000000), 
  B8_1BIT(00111000), 
  B8_1BIT(01111100), 
@@ -60,7 +60,7 @@ const uint8_t PacmanRightMask[] = {
  B8_1BIT(00111000), 
  B8_1BIT(00000000)
 };
-const struct CRGB PacmanRightColTab[] =  {
+const struct CRGB RingColTab[] =  {
  CRGB(0x0, 0x0, 0x0) /*0*/, 
  CRGB(0xd0, 0x4c, 0x50) /*d0504c*/, 
  CRGB(0xe3, 0x73, 0x76) /*e37673*/, 
@@ -69,4 +69,4 @@ const struct CRGB PacmanRightColTab[] =  {
  CRGB(0xd0, 0x94, 0x22) /*d02294*/, 
  CRGB(0xa9, 0x79, 0x1f) /*a91f79*/
 };
-cSprite PacmanRight(7, 9, PacmanRightData, 1, _5BIT, PacmanRightColTab, PacmanRightMask);
+cSprite Ring(7, 9, RingData, 1, _5BIT, RingColTab, RingMask);
